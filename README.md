@@ -4,7 +4,7 @@ An interactive, cinematic 3D recreation of San Francisco's Golden Gate Bridge. F
 
 ![Golden Gate Flight preview](public/og.png)
 
-[Open the hosted demo](https://golden-gate-flight-sf.chunhualiao.chatgpt.site) · The demo host may ask you to sign in. The source code itself is public and can be deployed independently.
+[Open the public Cloudflare demo](https://golden-gate-flight.chunhualiao.workers.dev) — no account or sign-in required.
 
 ## Highlights
 

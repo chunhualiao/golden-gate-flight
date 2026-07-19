@@ -67,3 +67,10 @@ test("lets Vinext own Cloudflare compatibility flags", async () => {
     "The deploy configuration must declare nodejs_compat exactly once",
   );
 });
+
+test("documents the public unauthenticated deployment", async () => {
+  const readme = await readFile(new URL("README.md", root), "utf8");
+
+  assert.match(readme, /https:\/\/golden-gate-flight\.chunhualiao\.workers\.dev/);
+  assert.doesNotMatch(readme, /golden-gate-flight-sf\.chunhualiao\.chatgpt\.site/);
+});
