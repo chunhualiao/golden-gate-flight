@@ -26,6 +26,7 @@ Verification completed at 2026-07-19 03:43:48 PDT:
 - docker build --tag golden-gate-flight:validation .: PASS
 - Container HTTP smoke test on host port 3300: PASS; HTTP response contained the Golden Gate Flight title
 - git diff --check: PASS
+- Initial GitHub Actions run 29683873581: PASS (49 seconds); action runtime deprecation annotation addressed by upgrading checkout and setup-node to v5
 
 Non-blocking observations:
 - The production build reports a large client chunk warning, expected for the Three.js scene bundle.
