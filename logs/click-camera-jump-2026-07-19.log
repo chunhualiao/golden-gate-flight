@@ -1,0 +1,33 @@
+2026-07-19 09:24:00 PDT — Issue #7 investigation started
+
+Observed behavior
+- A press/click on the rendered scene could immediately point the camera away from the bridge.
+- Pointer lock and pointer capture were already absent, so the regression was in camera rotation math.
+
+Root-cause analysis (5 whys)
+1. A click appeared to reset the view because the first pointer movement changed orientation dramatically.
+2. Browsers can emit a tiny pointermove between press and release without an intentional drag.
+3. The handler immediately assigned camera.rotation.order = "YXZ".
+4. Direct Euler-order assignment reinterprets existing angle components instead of preserving the current quaternion.
+5. Camera-order initialization was mixed into movement handling, with no threshold separating clicks from drags.
+
+2026-07-19 09:28:00 PDT — Test-first failure confirmed
+- Added regression requirements for an intentional-drag threshold and orientation-preserving Euler reorder.
+- The test failed against the deployed implementation for the expected missing safeguards.
+
+Root-cause correction
+- Replaced direct Euler-order assignment with rotation.reorder("YXZ"), which preserves orientation.
+- Added a four-pixel intentional-drag threshold.
+- Kept natural press-drag-release behavior with pointer up, cancel, and leave stopping the drag.
+- Did not add pointer lock or pointer capture.
+
+2026-07-19 09:34:45 PDT — Validation passed
+- npm run lint: PASS
+- npm test: PASS (production build plus 4 rendered-interface tests)
+- Local production worker: HTTP 200 for page and application assets.
+- Chrome: initial bridge visible; ordinary canvas click left the bridge-centered view visually unchanged.
+- Regression contract rejects direct camera.rotation.order assignment and requires the drag threshold.
+
+Local tooling note
+- Browser validation used the production build with a local-only Workers runtime-date override because the bundled runtime supports dates only through 2026-05-22.
+- Repository and production compatibility settings were not changed.

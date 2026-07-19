@@ -41,6 +41,9 @@ test("includes free-flight and environmental controls", async () => {
   assert.match(experience, /data-testid="sunlight-control"/);
   assert.match(experience, /data-testid="fog-control"/);
   assert.match(scene, /pointerdown|pointermove/);
+  assert.match(scene, /DRAG_THRESHOLD_PX/);
+  assert.match(scene, /rotation\.reorder\("YXZ"\)/);
+  assert.doesNotMatch(scene, /rotation\.order\s*=/);
   assert.doesNotMatch(scene, /pointerLockElement|requestPointerLock|setPointerCapture/);
   assert.doesNotMatch(experience, /started|pointerLockFailed|requestFlightLock/);
   assert.match(experience, /Return to bridge/);
