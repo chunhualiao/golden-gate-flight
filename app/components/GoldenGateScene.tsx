@@ -38,6 +38,7 @@ const DECK_Y = 29;
 const TOWER_Z = 128;
 const TOWER_TOP = 86;
 const BRIDGE_END = 278;
+const DRAG_THRESHOLD_PX = 4;
 
 const VIEWPOINTS = [
   { position: [78, 64, -338], target: [0, 36, 0] },
@@ -194,14 +195,17 @@ function FlightController({
   useEffect(() => {
     const canvas = gl.domElement;
     let dragging = false;
+    let dragStarted = false;
     let previousX = 0;
     let previousY = 0;
 
     const onPointerDown = (event: PointerEvent) => {
       if (event.button !== 0) return;
       dragging = true;
+      dragStarted = false;
       previousX = event.clientX;
       previousY = event.clientY;
+      cameraRef.current.rotation.reorder("YXZ");
     };
     const onPointerMove = (event: PointerEvent) => {
       if (!dragging) return;
@@ -211,9 +215,12 @@ function FlightController({
       }
       const yaw = event.clientX - previousX;
       const pitch = event.clientY - previousY;
+      if (!dragStarted) {
+        if (Math.hypot(yaw, pitch) < DRAG_THRESHOLD_PX) return;
+        dragStarted = true;
+      }
       previousX = event.clientX;
       previousY = event.clientY;
-      cameraRef.current.rotation.order = "YXZ";
       cameraRef.current.rotation.y -= yaw * 0.0026;
       cameraRef.current.rotation.x = MathUtils.clamp(
         cameraRef.current.rotation.x - pitch * 0.0026,
@@ -223,6 +230,7 @@ function FlightController({
     };
     const stopDragging = () => {
       dragging = false;
+      dragStarted = false;
     };
 
     canvas.addEventListener("pointerdown", onPointerDown);
