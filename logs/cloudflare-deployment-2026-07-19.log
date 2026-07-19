@@ -1,0 +1,24 @@
+[2026-07-19 04:09:41 PDT] Cloudflare deployment incident and fix
+
+Observed failure:
+- Cloudflare build c65ba189-3fff-4e6f-9ccd-f5906541ec8c built the application and uploaded 19 assets.
+- Worker version creation failed with Cloudflare validation code 10021.
+- Exact actionable message: Compatibility flag specified multiple times: nodejs_compat.
+
+Five-whys root-cause analysis:
+1. Why did deployment fail? Cloudflare rejected a duplicated compatibility flag.
+2. Why was nodejs_compat duplicated? Both vite.config.ts and the generated Wrangler deployment configuration declared it.
+3. Why did two configurations own the same setting? The local starter configuration predated Vinext's generated Cloudflare deployment configuration.
+4. Why was this not caught by the local build? Vite accepts the merged configuration during compilation; the Cloudflare versions API performs the duplicate validation at deployment time.
+5. Why could this recur? There was no checked-in Wrangler configuration or regression assertion establishing a single owner for compatibility flags.
+
+Root-cause correction:
+- Removed compatibility_flags from the local Cloudflare Vite plugin configuration.
+- Generated and checked in wrangler.jsonc as the single deployment source for nodejs_compat.
+- Added a regression test requiring zero declarations in vite.config.ts and exactly one in wrangler.jsonc.
+
+Verification:
+- The regression test failed before the fix with the expected duplicate declaration.
+- npm run lint: PASS.
+- npm test after removing the redundant flag: PASS (3/3 tests).
+- npm run deploy -- --dry-run: PASS; produced one nodejs_compat declaration in wrangler.jsonc.
