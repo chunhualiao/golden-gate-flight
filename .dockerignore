@@ -1,0 +1,12 @@
+.git
+.github
+.worktree
+.next
+.vinext
+dist
+node_modules
+outputs
+work
+.wrangler
+*.log
+.env*

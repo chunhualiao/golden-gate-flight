@@ -1,98 +1,102 @@
-# vinext-starter
+# Golden Gate Flight
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+An interactive, cinematic 3D recreation of San Francisco's Golden Gate Bridge. Fly freely around the bridge, shift from daylight to night, and tune the fog in real time.
 
-## Prerequisites
+![Golden Gate Flight preview](public/og.png)
 
-- Node.js `>=22.13.0`
+[Open the hosted demo](https://golden-gate-flight-sf.chunhualiao.chatgpt.site) · The demo host may ask you to sign in. The source code itself is public and can be deployed independently.
 
-## Quick Start
+## Highlights
+
+- Free-flight camera with keyboard, mouse, touch, and pointer-lock controls
+- Adjustable sunlight, night lighting, and fog density
+- Procedural bridge towers, suspension cables, roadway, terrain, bay water, traffic, and stars
+- Responsive control panel for desktop and mobile
+- No API keys, database, or runtime secrets required
+- Server-rendered application shell with a client-side WebGL scene
+
+## Controls
+
+| Action | Desktop control |
+| --- | --- |
+| Look around | Drag, or click **Free fly** for pointer lock |
+| Move | `W` `A` `S` `D` |
+| Rise / descend | `Space` / `Shift` |
+| Boost | Hold `E` |
+| Leave pointer lock | `Esc` |
+| Time and atmosphere | Use the Sunlight and Fog controls |
+
+## Run locally
+
+Requirements: Node.js 22.13 or newer and npm.
 
 ```bash
-npm install
+git clone https://github.com/chunhualiao/golden-gate-flight.git
+cd golden-gate-flight
+npm ci
 npm run dev
+```
+
+Open the local address printed in the terminal. No environment file is needed.
+
+To exercise the production build locally:
+
+```bash
 npm run build
+npm start -- --hostname 0.0.0.0 --port 3000
 ```
 
-This starter does not use `wrangler.jsonc`.
+## Deploy
 
-## Included Shape
+### Cloudflare Workers
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+Vinext has native Cloudflare Workers support. Authenticate once, then deploy:
 
-## Workspace Auth Headers
-
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+npx wrangler login
+npm run deploy
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+For CI, provide `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` through your provider's secret manager. Do not commit either value.
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+### Docker and container clouds
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+The included image runs on any OCI-compatible container service:
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+```bash
+docker build -t golden-gate-flight .
+docker run --rm -p 3000:3000 golden-gate-flight
+```
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+Push that image to your registry and deploy it with port `3000` on services such as AWS App Runner or ECS, Google Cloud Run, Azure Container Apps, Fly.io, Railway, or Render. The container does not require persistent storage or application secrets.
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+The app can also use Vinext's Nitro presets for provider-specific builds. See the [Vinext deployment guide](https://github.com/cloudflare/vinext#deployment) before choosing a provider adapter.
 
-## Useful Commands
+## Quality checks
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+```bash
+npm run lint
+npm test
+```
 
-## Learn More
+`npm test` creates a production build and checks the server-rendered experience shell and interactive control surface. GitHub Actions runs both commands for every push and pull request.
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+## Project structure
+
+```text
+app/components/BridgeExperience.tsx  interface and environment controls
+app/components/GoldenGateScene.tsx   Three.js scene, bridge, water, and flight
+app/globals.css                       responsive visual design
+tests/                                production rendering checks
+worker/                               Cloudflare Workers entry point
+```
+
+## Technology
+
+[Three.js](https://threejs.org/), [React Three Fiber](https://r3f.docs.pmnd.rs/), [React](https://react.dev/), [Vinext](https://github.com/cloudflare/vinext), and [Cloudflare's Vite plugin](https://developers.cloudflare.com/workers/vite-plugin/).
+
+WebGL 2 and hardware acceleration are recommended. Performance depends on the device and browser.
+
+## License
+
+[MIT](LICENSE)

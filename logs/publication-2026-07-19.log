@@ -1,0 +1,32 @@
+[2026-07-19 03:43:48 PDT] Public-release validation
+
+Scope:
+- Prepare Golden Gate Flight for a public GitHub repository.
+- Make local and cloud deployment instructions reproducible.
+- Avoid publishing a deployment-specific project association.
+
+Root-cause analysis (5 whys):
+1. Why was the project not ready for independent deployment? The README still described the original starter rather than this application.
+2. Why did that matter? A new user could not identify the controls, requirements, or supported deployment commands.
+3. Why were the deployment instructions incomplete? The project had only been validated in its original hosted environment.
+4. Why did that reduce portability? The repository retained a host-specific project identifier and had no container contract.
+5. Why could that cause repeat failures? Clones would inherit assumptions about the original host instead of owning their deployment configuration.
+
+Root-cause changes:
+- Replaced starter documentation with application, controls, local, Cloudflare, and container deployment guidance.
+- Removed the host-specific project identifier from the tracked hosting configuration.
+- Added an OCI Dockerfile and .dockerignore.
+- Added an MIT license so public users have explicit rights to run, modify, and redistribute the code.
+- Added GitHub Actions validation for pushes and pull requests.
+
+Verification completed at 2026-07-19 03:43:48 PDT:
+- npm run lint: PASS
+- npm test: PASS (production build plus 2/2 tests)
+- npm start -- --hostname 0.0.0.0 --port 3000: PASS; HTTP response contained the Golden Gate Flight title
+- docker build --tag golden-gate-flight:validation .: PASS
+- Container HTTP smoke test on host port 3300: PASS; HTTP response contained the Golden Gate Flight title
+- git diff --check: PASS
+
+Non-blocking observations:
+- The production build reports a large client chunk warning, expected for the Three.js scene bundle.
+- npm audit reports transitive advisories in the current framework dependency graph. No audit command is used as a CI gate; dependency upgrades should be evaluated separately because the automated force fix proposes breaking framework changes.

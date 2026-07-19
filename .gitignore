@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/.worktree/
 
 # next.js
 /.next/
