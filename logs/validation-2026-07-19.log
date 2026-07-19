@@ -1,0 +1,30 @@
+Golden Gate Flight — Build and Validation Log
+Local timezone: America/Los_Angeles
+
+[2026-07-19T02:43:00-0700] Initialized the Vinext/React site and started the local preview.
+[2026-07-19T02:45:00-0700] Added a failing product test for the experience shell, flight controls, sunlight control, and fog control.
+[2026-07-19T03:00:00-0700] Implemented the full Three.js scene, UI, environment controls, bridge geometry, moving traffic, water shader, terrain, and lighting.
+[2026-07-19T03:03:15-0700] Restarted the local preview after a new-module hot-reload cache miss; the clean server resolved the newly added component tree.
+[2026-07-19T03:06:00-0700] Browser QA isolated a black-frame failure to the optional post-processing path: performance mode rendered correctly while the composer path did not.
+[2026-07-19T03:08:00-0700] Removed post-processing from the critical render path and retained cinematic color through renderer tone mapping plus a CSS vignette. All quality modes then rendered the 3D scene.
+[2026-07-19T03:09:00-0700] Browser QA found Pointer Lock was rejected by the restrictive in-app browser. Added explicit rejection handling and drag-to-look fallback while preserving native Pointer Lock for supported browsers.
+[2026-07-19T03:13:00-0700] Verified sunlight preset state changes to Night / 12:18 AM and fog preset state changes to 78% dense fog.
+[2026-07-19T03:18:00-0700] Verified responsive layout at 390 x 844 and adjusted mobile panel behavior.
+[2026-07-19T03:20:00-0700] Added and validated the project social preview artwork at public/og.png.
+[2026-07-19T03:22:00-0700] Final production build completed successfully; 2/2 product tests passed; lint completed with zero errors and zero warnings.
+
+5-why root cause — cinematic black frame
+1. The cinematic quality setting showed a blank scene because the post-processing output was not presented.
+2. The base Three.js scene was healthy because the performance path, which bypassed post-processing, rendered correctly.
+3. The optional composer stack was incompatible with the active renderer/browser integration.
+4. That incompatibility blanked the whole scene because the enhancement layer sat in the critical presentation path.
+5. Root cause: scene availability was coupled to an optional rendering enhancement.
+Resolution: removed that coupling; the base renderer now owns presentation and the vignette is a non-critical CSS overlay.
+
+5-why root cause — Pointer Lock launch failure
+1. Mouse capture failed because the in-app Chromium surface rejected Pointer Lock.
+2. The initial launch surfaced an error because the returned rejection was not handled.
+3. The control design assumed Pointer Lock would always be available.
+4. That assumption made mouse-look dependent on an optional browser capability.
+5. Root cause: the primary navigation scheme lacked a capability-independent fallback.
+Resolution: handle Pointer Lock rejection explicitly and provide canvas drag-to-look with the same WASD / vertical flight movement.
