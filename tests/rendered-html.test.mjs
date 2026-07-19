@@ -23,8 +23,9 @@ test("server-renders the Golden Gate flight experience shell", async () => {
 
   assert.match(html, /<title>Golden Gate Flight/);
   assert.match(html, /Golden Gate/);
-  assert.match(html, /Explore the span/);
+  assert.match(html, /Return to bridge/);
   assert.match(html, /Environment controls/);
+  assert.doesNotMatch(html, /Begin flight|Resume flight|capture the mouse/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 });
 
@@ -39,7 +40,10 @@ test("includes free-flight and environmental controls", async () => {
   assert.match(experience, /fogLevel/);
   assert.match(experience, /data-testid="sunlight-control"/);
   assert.match(experience, /data-testid="fog-control"/);
-  assert.match(scene, /pointerLockElement/);
+  assert.match(scene, /pointerdown|pointermove/);
+  assert.doesNotMatch(scene, /pointerLockElement|requestPointerLock|setPointerCapture/);
+  assert.doesNotMatch(experience, /started|pointerLockFailed|requestFlightLock/);
+  assert.match(experience, /Return to bridge/);
   assert.match(scene, /KeyW|KeyA|KeyS|KeyD/);
   assert.match(scene, /GoldenGateBridge/);
   assert.match(scene, /Water/);
