@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import {
   ACESFilmicToneMapping,
   CineonToneMapping,
@@ -11,6 +11,21 @@ import {
 import { GoldenGateScene, type ViewpointRequest } from "./GoldenGateScene";
 
 type Quality = "cinematic" | "balanced" | "performance";
+type DeploymentFreshness =
+  | "checking"
+  | "current"
+  | "stale"
+  | "unknown"
+  | "preview"
+  | "local";
+
+declare const __DEPLOYMENT_COMMIT__: string;
+declare const __DEPLOYMENT_BRANCH__: string;
+
+const REPOSITORY_URL = "https://github.com/chunhualiao/golden-gate-flight";
+const DEPLOYMENT_COMMIT = __DEPLOYMENT_COMMIT__;
+const DEPLOYMENT_BRANCH = __DEPLOYMENT_BRANCH__;
+const IS_COMMIT_SHA = /^[0-9a-f]{40}$/i.test(DEPLOYMENT_COMMIT);
 
 const VIEWPOINTS = [
   { label: "Approach", short: "01" },
@@ -33,6 +48,71 @@ function conditionLabel(time: number) {
   if (time < 17.5) return "Daylight";
   if (time < 20) return "Golden hour";
   return "Blue hour";
+}
+
+function initialDeploymentFreshness(): DeploymentFreshness {
+  if (DEPLOYMENT_BRANCH === "local" || !IS_COMMIT_SHA) return "local";
+  if (DEPLOYMENT_BRANCH !== "main") return "preview";
+  return "checking";
+}
+
+function DeploymentFooter() {
+  const [freshness, setFreshness] = useState<DeploymentFreshness>(
+    initialDeploymentFreshness,
+  );
+
+  useEffect(() => {
+    if (freshness !== "checking") return;
+
+    const controller = new AbortController();
+    fetch(`${REPOSITORY_URL.replace("github.com", "api.github.com/repos")}/commits/main`, {
+      headers: { Accept: "application/vnd.github+json" },
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error(`GitHub returned ${response.status}`);
+        return response.json() as Promise<{ sha?: string }>;
+      })
+      .then(({ sha }) => {
+        setFreshness(sha === DEPLOYMENT_COMMIT ? "current" : "stale");
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setFreshness("unknown");
+      });
+
+    return () => controller.abort();
+  }, [freshness]);
+
+  const status = {
+    checking: "Checking source",
+    current: "Up to date",
+    stale: "Update pending",
+    unknown: "Status unknown",
+    preview: `Preview · ${DEPLOYMENT_BRANCH}`,
+    local: "Local build",
+  }[freshness];
+  const revision = IS_COMMIT_SHA ? DEPLOYMENT_COMMIT.slice(0, 7) : "local";
+  const revisionUrl = IS_COMMIT_SHA
+    ? `${REPOSITORY_URL}/commit/${DEPLOYMENT_COMMIT}`
+    : `${REPOSITORY_URL}/tree/main`;
+
+  return (
+    <footer className="deployment-footer" aria-label="Deployment information">
+      <span className="deployment-status" data-state={freshness}>
+        <span aria-hidden="true" />
+        {status}
+      </span>
+      <a
+        href={revisionUrl}
+        target="_blank"
+        rel="noreferrer"
+        title={IS_COMMIT_SHA ? `Deployed commit ${DEPLOYMENT_COMMIT}` : "Open source repository"}
+      >
+        Source revision {revision}
+      </a>
+    </footer>
+  );
 }
 
 export function BridgeExperience() {
@@ -310,6 +390,8 @@ export function BridgeExperience() {
         <div className="compass-line" />
         <small>MARIN</small>
       </div>
+
+      <DeploymentFooter />
 
       <div className="frame-corners" aria-hidden="true">
         <span />

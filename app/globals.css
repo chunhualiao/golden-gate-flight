@@ -592,6 +592,61 @@ kbd {
   letter-spacing: 0.12em;
 }
 
+.deployment-footer {
+  position: absolute;
+  z-index: 10;
+  bottom: 28px;
+  left: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  color: rgba(255, 255, 255, 0.42);
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.deployment-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.deployment-status > span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #9fb7c8;
+  box-shadow: 0 0 7px rgba(159, 183, 200, 0.5);
+}
+
+.deployment-status[data-state="current"] > span {
+  background: #7ed39b;
+  box-shadow: 0 0 7px rgba(126, 211, 155, 0.6);
+}
+
+.deployment-status[data-state="stale"] > span {
+  background: #f3a85f;
+  box-shadow: 0 0 7px rgba(243, 168, 95, 0.6);
+}
+
+.deployment-status[data-state="unknown"] > span {
+  background: #d9c071;
+}
+
+.deployment-footer a {
+  color: rgba(255, 255, 255, 0.58);
+  text-decoration: none;
+}
+
+.deployment-footer a:hover {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .frame-corners {
   position: absolute;
   z-index: 3;
@@ -651,6 +706,17 @@ kbd {
   .flight-help,
   .compass {
     display: none;
+  }
+
+  .deployment-footer {
+    right: 18px;
+    bottom: 42px;
+    left: 18px;
+    flex-direction: row;
+    align-items: center;
+    gap: 9px;
+    justify-content: center;
+    font-size: 6px;
   }
 
   .return-bridge {
