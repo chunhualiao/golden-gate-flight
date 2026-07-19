@@ -1,0 +1,37 @@
+2026-07-19 09:05:00 PDT — Issue #5 validation started
+
+Root-cause analysis (5 whys)
+1. Users could not explore immediately because a launch modal blocked the scene.
+2. The modal existed to initiate pointer lock.
+3. Pointer lock was used for game-style mouse-look.
+4. Unbounded mouse deltas could rotate the camera far away from the landmark.
+5. The interaction was designed around a flight-game convention instead of the core job: inspect the Golden Gate Bridge with minimal friction.
+
+Root-cause correction
+- Removed the launch and resume gates.
+- Removed pointer-lock and pointer-capture APIs.
+- Kept bounded drag-to-look and keyboard flight.
+- Added a permanently visible Return to bridge action.
+- Kept all initial and restored viewpoints centered on the bridge.
+
+2026-07-19 09:09:00 PDT — Test-first failure confirmed
+- Updated the interaction contract before implementation.
+- Two tests failed against the old launch-gate and mouse-capture behavior, as expected.
+
+2026-07-19 09:13:00 PDT — Automated validation passed
+- npm run lint: PASS
+- npm test: PASS (production build plus 4 rendered-interface tests)
+- Contract confirms no Begin flight or Resume flight controls.
+- Contract confirms no pointerLockElement, requestPointerLock, or setPointerCapture usage.
+
+2026-07-19 09:18:18 PDT — Chrome interaction validation passed
+- Initial page rendered the Golden Gate Bridge immediately without an overlay.
+- Return to bridge rendered as one unique, accessible button.
+- Begin/Resume flight button count: 0.
+- Switched to Waterline, then used Return to bridge; bridge returned to the Approach view.
+- Chrome reported no active mouse-capture target.
+- Local worker requests returned HTTP 200 for the page and all application assets.
+
+Local tooling note
+- The default Vinext development command inherited compatibility date 2026-07-19, newer than the bundled local Workers runtime maximum of 2026-05-22.
+- Browser validation used the same production build with a local-only runtime-date override; repository and deployment compatibility settings were not changed.

@@ -102,7 +102,7 @@ input:focus-visible {
 
 .brand-lockup,
 .live-conditions,
-.panel-toggle {
+.topbar-actions {
   pointer-events: auto;
 }
 
@@ -177,9 +177,15 @@ input:focus-visible {
   background: rgba(255, 255, 255, 0.2);
 }
 
-.panel-toggle {
+.topbar-actions {
   justify-self: end;
-  min-width: 116px;
+  display: flex;
+  gap: 8px;
+}
+
+.panel-toggle,
+.return-bridge {
+  justify-self: end;
   padding: 10px 14px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(4, 10, 15, 0.56);
@@ -192,108 +198,18 @@ input:focus-visible {
   transition: background 180ms ease, border-color 180ms ease;
 }
 
-.panel-toggle:hover {
+.panel-toggle {
+  min-width: 116px;
+}
+
+.return-bridge {
+  color: rgba(255, 255, 255, 0.74);
+}
+
+.panel-toggle:hover,
+.return-bridge:hover {
   border-color: rgba(255, 255, 255, 0.42);
   background: rgba(10, 18, 24, 0.76);
-}
-
-.launch-card {
-  position: absolute;
-  z-index: 15;
-  top: 50%;
-  left: 50%;
-  width: min(500px, calc(100vw - 48px));
-  padding: 38px 42px 30px;
-  transform: translate(-50%, -48%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background:
-    linear-gradient(145deg, rgba(14, 22, 27, 0.9), rgba(5, 10, 15, 0.74)),
-    rgba(6, 12, 17, 0.78);
-  box-shadow: 0 36px 100px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(24px) saturate(1.15);
-  text-align: center;
-}
-
-.launch-card::before {
-  position: absolute;
-  inset: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  content: "";
-  pointer-events: none;
-}
-
-.launch-kicker {
-  margin: 0 0 18px;
-  color: var(--orange-bright);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.launch-card h2 {
-  margin: 0 0 15px;
-  font-size: clamp(36px, 5vw, 58px);
-  font-weight: 430;
-  letter-spacing: -0.065em;
-  line-height: 0.98;
-}
-
-.launch-card > p:not(.launch-kicker, .launch-hint) {
-  max-width: 370px;
-  margin: 0 auto 27px;
-  color: rgba(255, 255, 255, 0.66);
-  font-size: 13px;
-  line-height: 1.65;
-}
-
-.primary-action {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: min(250px, 100%);
-  margin: 0 auto;
-  padding: 14px 16px 14px 19px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: var(--orange);
-  color: #fff;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  transition: transform 180ms ease, background 180ms ease;
-}
-
-.primary-action:hover {
-  transform: translateY(-2px);
-  background: #e26341;
-}
-
-.launch-hint {
-  margin: 16px 0 0;
-  color: rgba(255, 255, 255, 0.4);
-  font-family: var(--mono);
-  font-size: 8px;
-  letter-spacing: 0.04em;
-}
-
-.resume-flight {
-  position: absolute;
-  z-index: 15;
-  top: 116px;
-  left: 50%;
-  padding: 11px 17px;
-  transform: translateX(-50%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(6, 12, 17, 0.76);
-  backdrop-filter: blur(15px);
-  color: #fff;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 .environment-panel {
@@ -737,15 +653,16 @@ kbd {
     display: none;
   }
 
+  .return-bridge {
+    padding-inline: 11px;
+    font-size: 8px;
+  }
+
   .environment-panel {
     z-index: 18;
     top: 92px;
     right: 14px;
     width: min(306px, calc(100vw - 28px));
-  }
-
-  .launch-card {
-    padding: 32px 24px 25px;
   }
 
   .mobile-note {

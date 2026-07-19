@@ -29,7 +29,6 @@ type SceneProps = {
   flightSpeed: number;
   traffic: boolean;
   viewpoint: ViewpointRequest;
-  onLockChange: (locked: boolean) => void;
 };
 
 const INTERNATIONAL_ORANGE = "#c84c30";
@@ -69,7 +68,6 @@ export function GoldenGateScene({
   flightSpeed,
   traffic,
   viewpoint,
-  onLockChange,
 }: SceneProps) {
   const daylight = daylightAt(timeOfDay);
   const night = 1 - daylight;
@@ -172,7 +170,6 @@ export function GoldenGateScene({
       <FlightController
         speed={flightSpeed}
         viewpoint={viewpoint}
-        onLockChange={onLockChange}
       />
 
     </>
@@ -182,11 +179,9 @@ export function GoldenGateScene({
 function FlightController({
   speed,
   viewpoint,
-  onLockChange,
 }: {
   speed: number;
   viewpoint: ViewpointRequest;
-  onLockChange: (locked: boolean) => void;
 }) {
   const keys = useRef(new Set<string>());
   const { camera, gl } = useThree();
@@ -203,14 +198,17 @@ function FlightController({
     let previousY = 0;
 
     const onPointerDown = (event: PointerEvent) => {
-      if (event.button !== 0 || document.pointerLockElement) return;
+      if (event.button !== 0) return;
       dragging = true;
       previousX = event.clientX;
       previousY = event.clientY;
-      canvas.setPointerCapture?.(event.pointerId);
     };
     const onPointerMove = (event: PointerEvent) => {
-      if (!dragging || document.pointerLockElement) return;
+      if (!dragging) return;
+      if ((event.buttons & 1) === 0) {
+        dragging = false;
+        return;
+      }
       const yaw = event.clientX - previousX;
       const pitch = event.clientY - previousY;
       previousX = event.clientX;
@@ -223,41 +221,23 @@ function FlightController({
         Math.PI / 2 - 0.04,
       );
     };
-    const onLockedMouseMove = (event: MouseEvent) => {
-      if (document.pointerLockElement !== canvas) return;
-      cameraRef.current.rotation.order = "YXZ";
-      cameraRef.current.rotation.y -= event.movementX * 0.0022;
-      cameraRef.current.rotation.x = MathUtils.clamp(
-        cameraRef.current.rotation.x - event.movementY * 0.0022,
-        -Math.PI / 2 + 0.04,
-        Math.PI / 2 - 0.04,
-      );
-    };
-    const onPointerLockChange = () => {
-      onLockChange(document.pointerLockElement === canvas);
-    };
-    const onPointerUp = (event: PointerEvent) => {
+    const stopDragging = () => {
       dragging = false;
-      canvas.releasePointerCapture?.(event.pointerId);
     };
 
     canvas.addEventListener("pointerdown", onPointerDown);
     canvas.addEventListener("pointermove", onPointerMove);
-    canvas.addEventListener("pointerup", onPointerUp);
-    canvas.addEventListener("pointercancel", onPointerUp);
-    document.addEventListener("mousemove", onLockedMouseMove);
-    document.addEventListener("pointerlockchange", onPointerLockChange);
-    document.addEventListener("pointerlockerror", onPointerLockChange);
+    canvas.addEventListener("pointerup", stopDragging);
+    canvas.addEventListener("pointercancel", stopDragging);
+    canvas.addEventListener("pointerleave", stopDragging);
     return () => {
       canvas.removeEventListener("pointerdown", onPointerDown);
       canvas.removeEventListener("pointermove", onPointerMove);
-      canvas.removeEventListener("pointerup", onPointerUp);
-      canvas.removeEventListener("pointercancel", onPointerUp);
-      document.removeEventListener("mousemove", onLockedMouseMove);
-      document.removeEventListener("pointerlockchange", onPointerLockChange);
-      document.removeEventListener("pointerlockerror", onPointerLockChange);
+      canvas.removeEventListener("pointerup", stopDragging);
+      canvas.removeEventListener("pointercancel", stopDragging);
+      canvas.removeEventListener("pointerleave", stopDragging);
     };
-  }, [gl, onLockChange]);
+  }, [gl]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

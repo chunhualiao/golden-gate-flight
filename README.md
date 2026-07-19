@@ -8,7 +8,7 @@ An interactive, cinematic 3D recreation of San Francisco's Golden Gate Bridge. F
 
 ## Highlights
 
-- Free-flight camera with keyboard, mouse, touch, and pointer-lock controls
+- Immediate free-flight camera with keyboard, mouse, and touch controls
 - Adjustable sunlight, night lighting, and fog density
 - Procedural bridge towers, suspension cables, roadway, terrain, bay water, traffic, and stars
 - Responsive control panel for desktop and mobile
@@ -19,11 +19,11 @@ An interactive, cinematic 3D recreation of San Francisco's Golden Gate Bridge. F
 
 | Action | Desktop control |
 | --- | --- |
-| Look around | Drag, or click **Free fly** for pointer lock |
+| Look around | Drag directly on the scene |
 | Move | `W` `A` `S` `D` |
 | Rise / descend | `Space` / `Shift` |
 | Boost | Hold `E` |
-| Leave pointer lock | `Esc` |
+| Recenter the landmark | Click **Return to bridge** or press `R` |
 | Time and atmosphere | Use the Sunlight and Fog controls |
 
 ## Run locally

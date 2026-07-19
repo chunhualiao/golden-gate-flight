@@ -41,9 +41,6 @@ export function BridgeExperience() {
   const [quality, setQuality] = useState<Quality>("cinematic");
   const [flightSpeed, setFlightSpeed] = useState(34);
   const [traffic, setTraffic] = useState(true);
-  const [locked, setLocked] = useState(false);
-  const [started, setStarted] = useState(false);
-  const [pointerLockFailed, setPointerLockFailed] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [viewpoint, setViewpoint] = useState<ViewpointRequest>({
     index: 0,
@@ -63,21 +60,6 @@ export function BridgeExperience() {
 
   function chooseView(index: number) {
     setViewpoint((current) => ({ index, nonce: current.nonce + 1 }));
-  }
-
-  async function requestFlightLock() {
-    setStarted(true);
-    const canvas = document.querySelector<HTMLCanvasElement>("#flight-canvas canvas");
-    if (!canvas?.requestPointerLock) {
-      setPointerLockFailed(true);
-      return;
-    }
-    try {
-      await canvas.requestPointerLock();
-      setPointerLockFailed(false);
-    } catch {
-      setPointerLockFailed(true);
-    }
   }
 
   return (
@@ -117,7 +99,6 @@ export function BridgeExperience() {
               flightSpeed={flightSpeed}
               traffic={traffic}
               viewpoint={viewpoint}
-              onLockChange={setLocked}
             />
           </Suspense>
         </Canvas>
@@ -141,48 +122,25 @@ export function BridgeExperience() {
           <span className="condition-divider" />
           <span>{fogLevel}% fog</span>
         </div>
-        <button
-          className="panel-toggle"
-          type="button"
-          onClick={() => setPanelOpen((open) => !open)}
-          aria-expanded={panelOpen}
-          aria-controls="environment-panel"
-        >
-          {panelOpen ? "Hide controls" : "Environment"}
-        </button>
-      </header>
-
-      {!started && (
-        <div className="launch-card">
-          <p className="launch-kicker">San Francisco · 37.8199° N</p>
-          <h2>Explore the span.</h2>
-          <p>
-            Free-fly through a full-scale study of the towers, cables, roadway,
-            headlands, and shifting coastal atmosphere.
-          </p>
+        <div className="topbar-actions">
           <button
-            id="enter-flight"
-            className="primary-action"
+            className="return-bridge"
             type="button"
-            onClick={requestFlightLock}
+            onClick={() => chooseView(0)}
           >
-            <span>Begin flight</span>
-            <span aria-hidden="true">↗</span>
+            ↺ Return to bridge
           </button>
-          <p className="launch-hint">Click to capture the mouse · Esc to release</p>
+          <button
+            className="panel-toggle"
+            type="button"
+            onClick={() => setPanelOpen((open) => !open)}
+            aria-expanded={panelOpen}
+            aria-controls="environment-panel"
+          >
+            {panelOpen ? "Hide controls" : "Environment"}
+          </button>
         </div>
-      )}
-
-      {started && !locked && (
-        <button
-          id="resume-flight"
-          className="resume-flight"
-          type="button"
-          onClick={requestFlightLock}
-        >
-          {pointerLockFailed ? "Drag to look · Retry mouse capture" : "Resume flight"}
-        </button>
-      )}
+      </header>
 
       <aside
         id="environment-panel"
@@ -328,7 +286,7 @@ export function BridgeExperience() {
         </div>
         <p>
           <strong>Fly</strong>
-          Mouse to look
+          Drag to look
         </p>
         <span className="help-divider" />
         <p>
@@ -361,7 +319,7 @@ export function BridgeExperience() {
       </div>
 
       <p className="mobile-note">
-        For full free-flight controls, open this experience on a desktop.
+        Drag to look · Choose Return to bridge whenever you want the landmark centered.
       </p>
     </section>
   );
