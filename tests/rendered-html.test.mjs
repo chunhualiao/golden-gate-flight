@@ -24,6 +24,8 @@ test("server-renders the Golden Gate flight experience shell", async () => {
   assert.match(html, /<title>Golden Gate Flight/);
   assert.match(html, /Golden Gate/);
   assert.match(html, /Return to bridge/);
+  assert.match(html, /Deployment information/);
+  assert.match(html, /Source revision/);
   assert.match(html, /Environment controls/);
   assert.doesNotMatch(html, /Begin flight|Resume flight|capture the mouse/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
@@ -73,6 +75,20 @@ test("lets Vinext own Cloudflare compatibility flags", async () => {
     1,
     "The deploy configuration must declare nodejs_compat exactly once",
   );
+});
+
+test("stamps deployments with their Git source revision", async () => {
+  const [experience, viteConfig] = await Promise.all([
+    readFile(new URL("app/components/BridgeExperience.tsx", root), "utf8"),
+    readFile(new URL("vite.config.ts", root), "utf8"),
+  ]);
+
+  assert.match(viteConfig, /WORKERS_CI_COMMIT_SHA/);
+  assert.match(viteConfig, /WORKERS_CI_BRANCH/);
+  assert.match(experience, /REPOSITORY_URL.*github\.com\/chunhualiao\/golden-gate-flight/);
+  assert.match(experience, /REPOSITORY_URL}\/commit/);
+  assert.match(experience, /Up to date/);
+  assert.match(experience, /Update pending/);
 });
 
 test("documents the public unauthenticated deployment", async () => {

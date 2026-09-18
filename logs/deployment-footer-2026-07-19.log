@@ -1,0 +1,29 @@
+2026-07-19 09:39:00 PDT — Issue #9 implementation started
+
+Design decision
+- Use Cloudflare Workers Builds source metadata rather than timestamps or manually maintained version numbers.
+- Embed WORKERS_CI_COMMIT_SHA and WORKERS_CI_BRANCH at build time.
+- Link the displayed revision to its exact public GitHub commit.
+- On production/main only, compare the embedded SHA with GitHub's public main SHA.
+- Degrade to Status unknown if GitHub is unavailable; never hide or fabricate the deployed revision.
+
+2026-07-19 09:42:00 PDT — Test-first failure confirmed
+- Added requirements for rendered deployment information, Cloudflare metadata injection, commit links, and freshness states.
+- Two tests failed against the prior implementation for the expected missing footer and metadata.
+
+2026-07-19 09:46:00 PDT — Automated validation passed
+- npm run lint: PASS
+- npm test: PASS (production build plus 5 rendered-interface tests)
+- git diff --check: PASS
+
+2026-07-19 09:49:44 PDT — Browser validation passed
+- Initial footer rendered as a compact lower-left block without covering the model or flight controls.
+- Local builds showed Local build and linked to the repository.
+- Simulated Cloudflare production metadata used commit 6a52958beeae7e3295a4cef93f1e7f239425955a on main.
+- Live GitHub comparison returned Up to date.
+- Source revision 6a52958 rendered as one unique link to the exact GitHub commit.
+- Local production worker returned HTTP 200 for the page and application assets.
+
+Local tooling note
+- Browser validation used a local-only Workers runtime-date override because the bundled runtime supports dates only through 2026-05-22.
+- Repository and production compatibility settings were not changed.

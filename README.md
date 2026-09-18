@@ -12,6 +12,7 @@ An interactive, cinematic 3D recreation of San Francisco's Golden Gate Bridge. F
 - Adjustable sunlight, night lighting, and fog density
 - Procedural bridge towers, suspension cables, roadway, terrain, bay water, traffic, and stars
 - Responsive control panel for desktop and mobile
+- Deployment footer with the exact Git revision and live `main` freshness status
 - No API keys, database, or runtime secrets required
 - Server-rendered application shell with a client-side WebGL scene
 
@@ -47,6 +48,17 @@ npm start -- --hostname 0.0.0.0 --port 3000
 ```
 
 ## Deploy
+
+### Verify the deployed source
+
+The footer displays the short Git commit used to build the running site. Select
+**Source revision** to open that exact commit on GitHub. Production builds also
+compare the deployed commit with the current `main` head and report **Up to
+date**, **Update pending**, or **Status unknown** when GitHub cannot be reached.
+
+Cloudflare Workers Builds supplies the commit and branch through
+`WORKERS_CI_COMMIT_SHA` and `WORKERS_CI_BRANCH`; no token or manual version
+number is required.
 
 ### Cloudflare Workers
 
